@@ -33,8 +33,9 @@ def savings(gross_pay, tax_rate, expenses):
     '''
     # Replace `pass` with your code.
     # Stay within the function. Only use the parameters as input. The function should return your answer.
-    remaining_money = ((gross_pay-(gross_pay * tax_rate))-expenses)
-    return int(remaining_money)
+    tax = math.floor(gross_pay * tax_rate)
+    remaining_money = gross_pay - tax - expenses
+    return remaining_money
 
 def material_waste(total_material, material_units, num_jobs, job_consumption):
     '''Material Waste.
