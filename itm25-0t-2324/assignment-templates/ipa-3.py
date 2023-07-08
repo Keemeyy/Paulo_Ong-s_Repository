@@ -41,7 +41,11 @@ def relationship_status(from_member, to_member, social_graph):
     '''
     # Replace `pass` with your code.
     # Stay within the function. Only use the parameters as input. The function should return your answer.
-    pass
+    import pandas as pd
+    from ipa_3_sample_data import *
+    
+    social_graph_df = pd.DataFrame(social_graph)
+    board_df = pd.DataFrame(board)
 
 
 def tic_tac_toe(board):
