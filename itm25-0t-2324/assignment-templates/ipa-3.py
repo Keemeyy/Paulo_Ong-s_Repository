@@ -41,13 +41,53 @@ def relationship_status(from_member, to_member, social_graph):
     '''
     # Replace `pass` with your code.
     # Stay within the function. Only use the parameters as input. The function should return your answer.
-    import pandas as pd
-    from ipa_3_sample_data import *
     
-    social_graph_df = pd.DataFrame(social_graph)
-    board_df = pd.DataFrame(board)
+    if to_member in social_graph[from_member]["following"] and from_member in social_graph[to_member]["following"]:
+        return "friend"
+    elif from_member in social_graph[to_member]["following"]:
+        return "followed by"
+    elif to_member in social_graph[from_member]["following"]:
+        return "follower"
+    else:
+        return "no relationship"
 
-
+social_graph = {
+    "@bongolpoc":{"first_name":"Joselito",
+                  "last_name":"Olpoc",
+                  "following":[
+                  ]
+    },
+    "@joaquin":  {"first_name":"Joaquin",
+                  "last_name":"Gonzales",
+                  "following":[
+                      "@chums","@jobenilagan"
+                  ]
+    },
+    "@chums" : {"first_name":"Matthew",
+                "last_name":"Uy",
+                "following":[
+                    "@bongolpoc","@miketan","@rudyang","@joeilagan"
+                ]
+    },
+    "@jobenilagan":{"first_name":"Joben",
+                   "last_name":"Ilagan",
+                   "following":[
+                    "@eeebeee","@joeilagan","@chums","@joaquin"
+                   ]
+    },
+    "@joeilagan":{"first_name":"Joe",
+                  "last_name":"Ilagan",
+                  "following":[
+                    "@eeebeee","@jobenilagan","@chums"
+                  ]
+    },
+    "@eeebeee":  {"first_name":"Elizabeth",
+                  "last_name":"Ilagan",
+                  "following":[
+                    "@jobenilagan","@joeilagan"
+                  ]
+    },
+}    
 def tic_tac_toe(board):
     '''Tic Tac Toe.
     25 points.
@@ -74,7 +114,66 @@ def tic_tac_toe(board):
     '''
     # Replace `pass` with your code.
     # Stay within the function. Only use the parameters as input. The function should return your answer.
-    pass
+    for row in board:
+        if len(set(row)) == 1 and row[0] != "":
+            return row[0]
+
+    for col in range(len(board)):
+        if len(set(row[col] for row in board)) == 1 and board[0][col] != "":
+            return board[0][col]
+
+    if len(set(board[i][i] for i in range(len(board)))) == 1 and board[0][0] != "":
+        return board[0][0]
+
+    if len(set(board[i][len(board)-1-i] for i in range(len(board)))) == 1 and board[0][len(board)-1] != "":
+        return board[0][len(board)-1]
+
+    return "NO WINNER"
+
+
+board1 = [
+    ['X', 'X', 'O'],
+    ['O', 'X', 'O'],
+    ['O', '', 'X'],
+]
+
+board2 = [
+    ['X', 'X', 'O'],
+    ['O', 'X', 'O'],
+    ['', 'O', 'X'],
+]
+
+board3 = [
+    ['O', 'X', 'O'],
+    ['', 'O', 'X'],
+    ['X', 'X', 'O'],
+]
+
+board4 = [
+    ['X', 'X', 'X'],
+    ['O', 'X', 'O'],
+    ['O', '', 'O'],
+]
+
+board5 = [
+    ['X', 'X', 'O'],
+    ['O', 'X', 'O'],
+    ['X', '', 'O'],
+]
+
+board6 = [
+    ['X', 'X', 'O'],
+    ['O', 'X', 'O'],
+    ['X', '', ''],
+]
+
+board7 = [
+    ['X', 'X', 'O', ''],
+    ['O', 'X', 'O', 'O'],
+    ['X', '', '', 'O'],
+    ['O', 'X', '', '']
+]
+
 
 def eta(first_stop, second_stop, route_map):
     '''ETA.
@@ -107,4 +206,52 @@ def eta(first_stop, second_stop, route_map):
     '''
     # Replace `pass` with your code.
     # Stay within the function. Only use the parameters as input. The function should return your answer.
-    pass
+    
+import pandas as pd
+
+legs_1 = {
+    ("upd", "admu"): {
+        "travel_time_mins": 10
+    },
+    ("admu", "dlsu"): {
+        "travel_time_mins": 35
+    },
+    ("dlsu", "upd"): {
+        "travel_time_mins": 55
+    }
+}
+
+legs_2 = {
+    ('a1', 'a2'): {
+        'travel_time_mins': 10
+    },
+    ('a2', 'b1'): {
+        'travel_time_mins': 10230
+    },
+    ('b1', 'a1'): {
+        'travel_time_mins': 1
+    }
+}
+
+
+legs = {**legs_1, **legs_2}
+
+
+legs_df = pd.DataFrame.from_dict(legs, orient='index').reset_index()
+legs_df.columns = ['start_stop', 'end_stop', 'travel_time_mins']
+
+def eta(first_stop, second_stop, legs_df):
+    forward_legs = legs_df.loc[(legs_df['start_stop'] == first_stop) & (legs_df['end_stop'] == second_stop)]
+    
+    if forward_legs.empty:
+        two_stops = legs_df.loc[legs_df['start_stop'] == first_stop, 'end_stop'].values
+        
+        eta_times = []
+        for two_stop in two_stops:
+            leg1_duration = eta(first_stop, two_stop, legs_df)
+            leg2_duration = eta(two_stop, second_stop, legs_df)
+            eta_times.append(leg1_duration + leg2_duration)
+        
+        return min(eta_times)
+    
+    return forward_legs['travel_time_mins'].values[0]
