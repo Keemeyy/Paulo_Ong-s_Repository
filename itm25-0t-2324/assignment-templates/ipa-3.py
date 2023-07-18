@@ -42,52 +42,43 @@ def relationship_status(from_member, to_member, social_graph):
     # Replace `pass` with your code.
     # Stay within the function. Only use the parameters as input. The function should return your answer.
     
-    if to_member in social_graph[from_member]["following"] and from_member in social_graph[to_member]["following"]:
-        return "friend"
-    elif from_member in social_graph[to_member]["following"]:
-        return "followed by"
-    elif to_member in social_graph[from_member]["following"]:
-        return "follower"
-    else:
-        return "no relationship"
+def relationship_status(from_member, to_member, social_graph):
+    if from_member in social_graph and to_member in social_graph:
+        if to_member in social_graph[from_member]["following"] and from_member in social_graph[to_member]["following"]:
+            return "friends"
+        elif from_member in social_graph[to_member]["following"]:
+            return "followed by"
+        elif to_member in social_graph[from_member]["following"]:
+            return "follower"
+    return "no relationship"
 
 social_graph = {
-    "@bongolpoc":{"first_name":"Joselito",
-                  "last_name":"Olpoc",
-                  "following":[
-                  ]
-    },
-    "@joaquin":  {"first_name":"Joaquin",
-                  "last_name":"Gonzales",
-                  "following":[
-                      "@chums","@jobenilagan"
-                  ]
-    },
-    "@chums" : {"first_name":"Matthew",
-                "last_name":"Uy",
-                "following":[
-                    "@bongolpoc","@miketan","@rudyang","@joeilagan"
-                ]
-    },
-    "@jobenilagan":{"first_name":"Joben",
-                   "last_name":"Ilagan",
-                   "following":[
-                    "@eeebeee","@joeilagan","@chums","@joaquin"
-                   ]
-    },
-    "@joeilagan":{"first_name":"Joe",
-                  "last_name":"Ilagan",
-                  "following":[
-                    "@eeebeee","@jobenilagan","@chums"
-                  ]
-    },
-    "@eeebeee":  {"first_name":"Elizabeth",
-                  "last_name":"Ilagan",
-                  "following":[
-                    "@jobenilagan","@joeilagan"
-                  ]
-    },
-}    
+    "@bongolpoc": {"first_name": "Joselito",
+                    "last_name": "Olpoc",
+                    "following": []
+                   },
+    "@joaquin": {"first_name": "Joaquin",
+                  "last_name": "Gonzales",
+                  "following": ["@chums", "@jobenilagan"]
+                },
+    "@chums": {"first_name": "Matthew",
+                "last_name": "Uy",
+                "following": ["@bongolpoc", "@miketan", "@rudyang", "@joeilagan"]
+               },
+    "@jobenilagan": {"first_name": "Joben",
+                     "last_name": "Ilagan",
+                     "following": ["@eeebeee", "@joeilagan", "@chums", "@joaquin"]
+                    },
+    "@joeilagan": {"first_name": "Joe",
+                    "last_name": "Ilagan",
+                    "following": ["@eeebeee", "@jobenilagan", "@chums"]
+                   },
+    "@eeebeee": {"first_name": "Elizabeth",
+                  "last_name": "Ilagan",
+                  "following": ["@jobenilagan", "@joeilagan"]
+                 },
+}
+    
 def tic_tac_toe(board):
     '''Tic Tac Toe.
     25 points.
@@ -207,21 +198,35 @@ def eta(first_stop, second_stop, route_map):
     # Replace `pass` with your code.
     # Stay within the function. Only use the parameters as input. The function should return your answer.
     
-import pandas as pd
-
-legs_1 = {
-    ("upd", "admu"): {
-        "travel_time_mins": 10
-    },
-    ("admu", "dlsu"): {
-        "travel_time_mins": 35
-    },
-    ("dlsu", "upd"): {
-        "travel_time_mins": 55
-    }
+    import pandas as pd
+    
+    forward = legs_df.loc[(legs_df['start_stop'] == first_stop) & (legs_df['end_stop'] == second_stop)]
+    
+    if forward.empty:
+        backward = legs_df.loc[legs_df['start_stop'] == first_stop, 'end_stop'].values
+        
+        eta_times = []
+        for backward in backward:
+            leg1_duration = legs_df.loc[(legs_df['start_stop'] == first_stop) & (legs_df['end_stop'] == backward), 'travel_time_mins'].values[0]
+            leg2_duration = legs_df.loc[(legs_df['start_stop'] == backward) & (legs_df['end_stop'] == second_stop), 'travel_time_mins'].values[0]
+            eta_times.append(leg1_duration + leg2_duration)
+        
+        return min(eta_times)
+    
+    return forward['travel_time_mins'].values[0]
+legs = {
+     ("upd","admu"):{
+         "travel_time_mins":10
+     },
+     ("admu","dlsu"):{
+         "travel_time_mins":35
+     },
+     ("dlsu","upd"):{
+         "travel_time_mins":55
+     }
 }
 
-legs_2 = {
+legs = {
     ('a1', 'a2'): {
         'travel_time_mins': 10
     },
@@ -232,26 +237,3 @@ legs_2 = {
         'travel_time_mins': 1
     }
 }
-
-
-legs = {**legs_1, **legs_2}
-
-
-legs_df = pd.DataFrame.from_dict(legs, orient='index').reset_index()
-legs_df.columns = ['start_stop', 'end_stop', 'travel_time_mins']
-
-def eta(first_stop, second_stop, legs_df):
-    forward_legs = legs_df.loc[(legs_df['start_stop'] == first_stop) & (legs_df['end_stop'] == second_stop)]
-    
-    if forward_legs.empty:
-        two_stops = legs_df.loc[legs_df['start_stop'] == first_stop, 'end_stop'].values
-        
-        eta_times = []
-        for two_stop in two_stops:
-            leg1_duration = eta(first_stop, two_stop, legs_df)
-            leg2_duration = eta(two_stop, second_stop, legs_df)
-            eta_times.append(leg1_duration + leg2_duration)
-        
-        return min(eta_times)
-    
-    return forward_legs['travel_time_mins'].values[0]
