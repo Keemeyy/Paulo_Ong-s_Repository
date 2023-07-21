@@ -197,36 +197,40 @@ def eta(first_stop, second_stop, route_map):
     '''
     # Replace `pass` with your code.
     # Stay within the function. Only use the parameters as input. The function should return your answer.
-    
     import pandas as pd
     
+    legs_df = pd.DataFrame.from_dict(route_map, orient='index', columns=['travel_time_mins']).reset_index()
+    legs_df.columns = ['start_stop', 'end_stop', 'travel_time_mins']
+
     forward = legs_df.loc[(legs_df['start_stop'] == first_stop) & (legs_df['end_stop'] == second_stop)]
-    
+
     if forward.empty:
         backward = legs_df.loc[legs_df['start_stop'] == first_stop, 'end_stop'].values
-        
+
         eta_times = []
-        for backward in backward:
-            leg1_duration = legs_df.loc[(legs_df['start_stop'] == first_stop) & (legs_df['end_stop'] == backward), 'travel_time_mins'].values[0]
-            leg2_duration = legs_df.loc[(legs_df['start_stop'] == backward) & (legs_df['end_stop'] == second_stop), 'travel_time_mins'].values[0]
+        for backward_stop in backward:
+            leg1_duration = legs_df.loc[(legs_df['start_stop'] == first_stop) & (legs_df['end_stop'] == backward_stop), 'travel_time_mins'].values[0]
+            leg2_duration = legs_df.loc[(legs_df['start_stop'] == backward_stop) & (legs_df['end_stop'] == second_stop), 'travel_time_mins'].values[0]
+
             eta_times.append(leg1_duration + leg2_duration)
-        
+
+        if not eta_times:
+            return -1  
+
         return min(eta_times)
-    
+
     return forward['travel_time_mins'].values[0]
-legs = {
-     ("upd","admu"):{
-         "travel_time_mins":10
-     },
-     ("admu","dlsu"):{
-         "travel_time_mins":35
-     },
-     ("dlsu","upd"):{
-         "travel_time_mins":55
-     }
-}
 
 legs = {
+    ("upd", "admu"): {
+        "travel_time_mins": 10
+    },
+    ("admu", "dlsu"): {
+        "travel_time_mins": 35
+    },
+    ("dlsu", "upd"): {
+        "travel_time_mins": 55
+    },
     ('a1', 'a2'): {
         'travel_time_mins': 10
     },
